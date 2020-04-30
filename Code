@@ -1,0 +1,33 @@
+library(shiny)
+library(ggplot2)
+library(dplyr)
+cars <- read.csv(url("https://github.com/federoss-1/R_project/blob/master/CARS.csv"))
+#cars <- read.csv("CARS.csv", stringsAsFactors = FALSE)
+
+
+ui <- fluidPage(
+    #ADD TITLE
+    titlePanel("Car sales in Europe vs US"),
+    sidebarLayout(
+        sidebarPanel(
+            radioButtons("typeinput", "Fuel type",
+                         choices = c("Gasoline", "Electric", "Hybrid"),
+                         selected = "Gasoline"),
+            selectInput("countryInput", "Country",
+                        choices = c("USA",	"Austria",	"Belgium",	"Croatia",	"Cyprus",	"Czechia",	"Denmark",	"Estonia",	"Finland",	"France",	"Hungary",	"Ireland",	"Italy",	"Latvia",	"Liechtenstein",	"Luxembourg",	"Malta",	"North Macedonia",	"Poland",	"Romania",	"Spain",	"Switzerland",	"United Kingdom",	"Netherlands",	"Norway","Portugal","Slovenia",	"Sweden","Turkey"))
+        ),
+        mainPanel(
+            plotOutput("carsplot")
+        )
+    )
+)
+server <- function(input, output) {
+    output$carsplot <- renderPlot({
+        CARS %>%
+            filter(Type == input$typeinput & Country == input$countryInput) %>%
+            ggplot(aes(x = Year, y = Amount)) +
+            geom_point(size = 2) +
+            geom_line()
+    })
+}
+shinyApp(ui = ui, server = server)
